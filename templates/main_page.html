@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block styles %}
+    <style>
+        form {
+            padding: 12px;
+        }
+
+        form > div {
+            margin: 12px 0;
+        }
+
+        .users, .users__list {
+            padding: 12px;
+        }
+
+        .users__list > div:not(:first-child) {
+            margin-top: 16px;
+        }
+
+        .user {
+            display: flex;
+            align-items: center;
+        }
+
+        .user > *:not(:first-child) {
+            margin-left: 16px;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    {% if request.user.is_super %}
+        <fieldset>
+            <legend>Добавление пользователя</legend>
+
+            <form onsubmit="event.preventDefault(); submitAddForm(this)">
+                <div>
+                    <label for="username_input">Имя пользователя:</label>
+                    <input id="username_input" type="text" name="username" required>
+                </div>
+
+                <div>
+                    <label for="password_input">Пароль:</label>
+                    <input id="password_input" type="text" name="password" required>
+                </div>
+
+                <div>
+                    <label for="is_super_input">Суперпользователь?</label>
+                    <input id="is_super_input" type="checkbox" name="is_super">
+                </div>
+
+                <button type="submit">Добавить</button>
+            </form>
+        </fieldset>
+    {% endif %}
+
+    <div class="users">
+        <h4>Список пользователей</h4>
+
+        <div class="users__list"></div>
+    </div>
+
+    <button onclick="location.href = '{{ url_for('logout') }}'"
+    >Выйти
+    </button>
+
+    <template id="user_template">
+        <div class="user">
+            <button class="edit_button" {% if not request.user.is_super %}style="display: none"{% endif %}>
+                Изменить
+            </button>
+
+            <button class="delete_button" {% if not request.user.is_super %}style="display: none"{% endif %}>
+                Удалить
+            </button>
+
+            <div class="user__name"></div>
+        </div>
+    </template>
+
+    <script>
+        window.onload = () => updateUsers()
+
+        function updateUsers() {
+            fetch('{{ url_for('users') }}')
+                .then(response => response.json())
+                .then(data => {
+                    const users = data.users
+                    clearUsers()
+                    users.forEach(user => addUser(user))
+                });
+        }
+
+        function clearUsers() {
+            const usersList = document.querySelector('.users__list')
+            Array.from(usersList.children).forEach(el => usersList.removeChild(el))
+        }
+
+        function addUser(user) {
+            const userNode = document.querySelector('#user_template')
+            const createdNode = document.importNode(userNode.content, true)
+            createdNode.querySelector('.user__name').textContent = user.username
+            createdNode.querySelector('.edit_button').onclick = () => location.href = `/edit/${user.id}`
+            createdNode.querySelector('.delete_button').addEventListener('click', () => location.href = `/delete/${user.id}`)
+
+            const usersList = document.querySelector('.users__list')
+            usersList.appendChild(createdNode)
+        }
+
+        function submitAddForm(form) {
+            fetch('/add', {
+                method: 'POST',
+                body: new FormData(form)
+            })
+                .then(() => {
+                    form.reset()
+                    updateUsers()
+                })
+        }
+    </script>
+{% endblock %}

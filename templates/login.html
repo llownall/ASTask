@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block styles %}
+    <style>
+        form {
+            padding: 12px;
+        }
+
+        form > div {
+            margin: 12px 0;
+        }
+
+        .error {
+            color: red;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <form method="post">
+        <div>
+            <label for="username_input">Имя пользователя:</label>
+            <input id="username_input" type="text" name="username" autofocus>
+        </div>
+
+        <div>
+            <label for="password_input">Пароль:</label>
+            <input id="password_input" type="text" name="password">
+        </div>
+
+        <button type="submit">Войти</button>
+
+        {% if error_message %}
+            <div class="error">
+                {{ error_message }}
+            </div>
+        {% endif %}
+    </form>
+{% endblock %}

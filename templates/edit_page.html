@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block styles %}
+    <style>
+        form {
+            padding: 12px;
+        }
+
+        form > div {
+            margin: 12px 0;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <fieldset>
+        <legend>Изменение пользователя</legend>
+
+        <form method="post">
+            <div>
+                <label for="username_input">Имя пользователя:</label>
+                <input id="username_input" type="text" name="username" value="{{ user.username }}">
+            </div>
+
+            <div>
+                <label for="password_input">Пароль:</label>
+                <input id="password_input" type="text" name="password">
+            </div>
+
+            <div>
+                <label for="is_super_input">Суперпользователь?</label>
+                <input id="is_super_input" type="checkbox" name="is_super" {% if user.is_super %}checked{% endif %}>
+            </div>
+
+            <button type="submit">Сохранить</button>
+        </form>
+    </fieldset>
+{% endblock %}
